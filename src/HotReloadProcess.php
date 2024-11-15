@@ -3,8 +3,8 @@
 namespace HSK\HotReload;
 
 use EasySwoole\Component\Process\AbstractProcess;
-use EasySwoole\HotReload\Monitor\FileScanner;
-use EasySwoole\HotReload\Monitor\Inotify;
+use HSK\HotReload\Monitor\FileScanner;
+use HSK\HotReload\Monitor\Inotify;
 use Swoole\Server;
 
 /**
