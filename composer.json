@@ -1,6 +1,7 @@
 {
     "name": "henrywood/hot-reload",
     "description": "auto hot reload manager",
+    "version": "1.0",
     "type": "library",
     "license": "Apache-2.0",
     "authors": [
