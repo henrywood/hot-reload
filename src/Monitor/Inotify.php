@@ -1,7 +1,7 @@
 <?php
 
 
-namespace EasySwoole\HotReload\Monitor;
+namespace HSK\HotReload\Monitor;
 
 /**
  * Inotify监视器
