@@ -1,9 +1,9 @@
 <?php
 
 
-namespace EasySwoole\HotReload\Monitor;
+namespace HSK\HotReload\Monitor;
 
-use EasySwoole\HotReload\HotReloadOptions;
+use HSK\HotReload\HotReloadOptions;
 use EasySwoole\Utility\File;
 use Swoole\Process;
 
