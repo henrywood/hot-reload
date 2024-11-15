@@ -1,6 +1,6 @@
 <?php
 
-namespace EasySwoole\HotReload;
+namespace HSK\HotReload;
 
 use EasySwoole\Component\Process\AbstractProcess;
 use EasySwoole\HotReload\Monitor\FileScanner;
