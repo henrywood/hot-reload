@@ -4,7 +4,7 @@ namespace HSK\HotReload;
 use EasySwoole\Component\Process\AbstractProcess as Base;
 use EasySwoole\Component\Process\Config;
 
-abstract class AbstractClass extends Base {
+abstract class AbstractProcess extends Base {
 
         /**
          * name  args  false 2 true
