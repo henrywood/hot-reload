@@ -2,7 +2,7 @@
 
 namespace HSK\HotReload;
 
-use EasySwoole\Component\Process\AbstractProcess;
+use HSK\HotReload\AbstractProcess;
 use HSK\HotReload\Monitor\FileScanner;
 use HSK\HotReload\Monitor\Inotify;
 use Swoole\Server;
