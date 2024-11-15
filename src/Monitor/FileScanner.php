@@ -1,6 +1,6 @@
 <?php
 
-namespace EasySwoole\HotReload\Monitor;
+namespace HSK\HotReload\Monitor;
 
 use Swoole\Timer;
 
