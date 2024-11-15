@@ -24,7 +24,7 @@ abstract class AbstractProcess extends Base {
         );
     }
 
-    public function getProcess(): Swoole\Process  {
+    public function getProcess(): \Swoole\Process  {
         return $this->swooleProcess;
     }
 }
