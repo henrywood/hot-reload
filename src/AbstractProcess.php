@@ -10,6 +10,9 @@ abstract class AbstractProcess extends Base {
 
     function __construct(...$args)
     {
+        $old = error_reporting();
+        error_reporting($old & ~E_WARNING);   // disable warnings only
+        
         $config = new Config();
         $config->setProcessName('HotReload');
         $config->setEnableCoroutine(true);
@@ -22,6 +25,8 @@ abstract class AbstractProcess extends Base {
             0,
             true
         );
+
+       error_reporting($old);
     }
 
     public function getProcess(): \Swoole\Process  {
