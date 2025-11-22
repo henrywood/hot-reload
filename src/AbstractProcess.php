@@ -26,7 +26,7 @@ abstract class AbstractProcess extends Base {
             true
         );
 
-       error_reporting($old);
+       //error_reporting($old);
     }
 
     public function getProcess(): \Swoole\Process  {
