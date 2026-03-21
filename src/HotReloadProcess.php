@@ -32,6 +32,11 @@ class HotReloadProcess extends AbstractProcess
      */
     protected function run($arg)
     {
+        // Handle SIGINT - exit cleanly so manager isn't triggered to restart
+        $this->getProcess()->signal(SIGINT, function() {
+            \Swoole\Event::exit();
+        });
+        
         // 注册SIGUSR1 收到该信号执行重载逻辑
         $this->getProcess()->signal(SIGUSR1, function () {
             $this->onReloadSignal();
