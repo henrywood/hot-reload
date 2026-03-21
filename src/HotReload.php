@@ -19,6 +19,11 @@ class HotReload
         $this->hotReloadOptions = $hotReloadOptions;
     }
 
+    public function getHotReloadProcess(): HotReloadProcess
+    {
+        return $this->hotReloadProcess;
+    }
+    
     /**
      * 附加到当前服务
      * @param Server $server
