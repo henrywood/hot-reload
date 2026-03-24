@@ -33,8 +33,13 @@ class HotReloadProcess extends AbstractProcess
     protected function run($arg)
     {
         // Handle SIGINT - exit cleanly so manager isn't triggered to restart
-        $this->getProcess()->signal(SIGINT, function() {
-            \Swoole\Event::exit();
+        // Wait for any running coroutine (scandir, exec) to finish naturally
+        $deadline = time() + 30;
+        \Swoole\Coroutine\run(function() use ($deadline) {
+            while (\Swoole\Coroutine::stats()['coroutine_num'] > 1) {
+                if (time() > $deadline) break;
+                \Swoole\Coroutine::sleep(0.1);
+            }
         });
         
         // 注册SIGUSR1 收到该信号执行重载逻辑
