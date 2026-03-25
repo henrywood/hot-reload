@@ -46,10 +46,13 @@ class Inotify extends AbstractMonitor
 				global $lastReloadTime;
 				global $inotifyResource;
 				$events = inotify_read($inotifyResource);
-				//if ($lastReloadTime < time() && !empty($events)) { // 限制1s内不能进行重复reload
-				if (($lastReloadTime + 5) < time() && !empty($events)) { // 5 second cooldown
-					$lastReloadTime = time();
-					$this->sendReloadSignal();  // 向重载进程发送信号通知重载
+				if (!empty($events)) {
+					$now = time();
+					if (($lastReloadTime + 5) < $now) {
+						$lastReloadTime = $now; // set BEFORE sending signal
+						$this->sendReloadSignal();
+					}
+					// else: drain events but ignore them
 				}
 			});
 		} else {
