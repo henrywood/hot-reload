@@ -32,21 +32,15 @@ class HotReloadProcess extends AbstractProcess
      */
     protected function run($arg)
     {
-        // Handle SIGINT - exit cleanly so manager isn't triggered to restart
-        // Wait for any running coroutine (scandir, exec) to finish naturally
-        $deadline = time() + 30;
-        \Swoole\Coroutine\run(function() use ($deadline) {
-            while (\Swoole\Coroutine::stats()['coroutine_num'] > 1) {
-                if (time() > $deadline) break;
-                \Swoole\Coroutine::sleep(0.1);
-            }
-        });
-        
-        // 注册SIGUSR1 收到该信号执行重载逻辑
+        // Ignore SIGINT - let master handle shutdown
+        // Must be set AFTER Process::signal() which may reset signal dispositions
         $this->getProcess()->signal(SIGUSR1, function () {
             $this->onReloadSignal();
         });
-
+        
+        // Explicitly ignore SIGINT after signalfd setup
+        \Swoole\Process::signal(SIGINT, SIG_IGN);
+    
         $currentOS = PHP_OS;
         $currentPID = $this->getProcess()->pid;
         $reloadMonitor = $this->selectMonitor();
