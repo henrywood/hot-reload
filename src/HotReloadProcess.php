@@ -14,83 +14,84 @@ use Swoole\Server;
  */
 class HotReloadProcess extends AbstractProcess
 {
-    /**
-     * 热重载配置
-     * @var HotReloadOptions
-     */
-    protected $hotReloadOptions;
+	/**
+	 * 热重载配置
+	 * @var HotReloadOptions
+	 */
+	protected $hotReloadOptions;
 
-    /**
-     * 当前的主服务
-     * @var Server
-     */
-    protected $swooleServer;
+	/**
+	 * 当前的主服务
+	 * @var Server
+	 */
+	protected $swooleServer;
 
-    /**
-     * 热重载监控进程
-     * @param $arg
-     */
-    protected function run($arg)
-    {
-        // Ignore SIGINT - let master handle shutdown
-        // Must be set AFTER Process::signal() which may reset signal dispositions
-        $this->getProcess()->signal(SIGUSR1, function () {
-            $this->onReloadSignal();
-        });
-        
-        // Explicitly ignore SIGINT after signalfd setup
-        \Swoole\Process::signal(SIGINT, SIG_IGN);
-    
-        $currentOS = PHP_OS;
-        $currentPID = $this->getProcess()->pid;
-        $reloadMonitor = $this->selectMonitor();
-        $reloadMonitor->startMonitor();
-        echo "{$reloadMonitor->monitorName()} hot reload initialize at {$currentOS} in PID {$currentPID} ...\n";
-    }
+	/**
+	 * 热重载监控进程
+	 * @param $arg
+	 */
+	protected function run($arg)
+	{
+		$this->getProcess()->signal(SIGUSR1, function () {
+			$this->onReloadSignal();
+		});
 
-    /**
-     * 获得一个监视器实例
-     * @return FileScanner|Inotify
-     */
-    protected function selectMonitor()
-    {
-        if (extension_loaded('inotify') && !$this->hotReloadOptions->isDisableInotify()) {
-            return new Inotify($this->hotReloadOptions, $this->getProcess());
-        }
-        return new FileScanner($this->hotReloadOptions, $this->getProcess());
-    }
+		// Ignore SIGINT - let master handle shutdown
+		// Use pcntl_signal instead of Swoole\Process::signal for SIG_IGN
+		// Swoole\Process::signal() modifies the global signalfd table and can
+		// unregister the master's SIGINT handler as a side effect
+		pcntl_signal(SIGINT, SIG_IGN);
 
-    /**
-     * HotReloadOptions Setter
-     * @param mixed $hotReloadOptions
-     */
-    public function setHotReloadOptions($hotReloadOptions)
-    {
-        $this->hotReloadOptions = $hotReloadOptions;
-    }
+		$currentOS = PHP_OS;
+		$currentPID = $this->getProcess()->pid;
+		$reloadMonitor = $this->selectMonitor();
+		$reloadMonitor->startMonitor();
+		echo "{$reloadMonitor->monitorName()} hot reload initialize at {$currentOS} in PID {$currentPID} ...\n";
+	}
 
-    /**
-     * SwooleServer Setter
-     * @param Server $swooleServer
-     */
-    public function setSwooleServer($swooleServer)
-    {
-        $this->swooleServer = $swooleServer;
-    }
+	/**
+	 * 获得一个监视器实例
+	 * @return FileScanner|Inotify
+	 */
+	protected function selectMonitor()
+	{
+		if (extension_loaded('inotify') && !$this->hotReloadOptions->isDisableInotify()) {
+			return new Inotify($this->hotReloadOptions, $this->getProcess());
+		}
+		return new FileScanner($this->hotReloadOptions, $this->getProcess());
+	}
 
-    /**
-     * 收到重载信号时
-     * 如果当前定义了回调则执行用户回调
-     */
-    public function onReloadSignal()
-    {
-        $reloadCallback = $this->hotReloadOptions->getReloadCallback();
-        if (is_callable($reloadCallback)) {
-            $reloadCallback($this->swooleServer);
-            return;
-        }
+	/**
+	 * HotReloadOptions Setter
+	 * @param mixed $hotReloadOptions
+	 */
+	public function setHotReloadOptions($hotReloadOptions)
+	{
+		$this->hotReloadOptions = $hotReloadOptions;
+	}
 
-        echo "HOT_RELOAD: reloaded at " . time() . "\n";
-        $this->swooleServer->reload();
-    }
+	/**
+	 * SwooleServer Setter
+	 * @param Server $swooleServer
+	 */
+	public function setSwooleServer($swooleServer)
+	{
+		$this->swooleServer = $swooleServer;
+	}
+
+	/**
+	 * 收到重载信号时
+	 * 如果当前定义了回调则执行用户回调
+	 */
+	public function onReloadSignal()
+	{
+		$reloadCallback = $this->hotReloadOptions->getReloadCallback();
+		if (is_callable($reloadCallback)) {
+			$reloadCallback($this->swooleServer);
+			return;
+		}
+
+		echo "HOT_RELOAD: reloaded at " . time() . "\n";
+		$this->swooleServer->reload();
+	}
 }
